@@ -16,7 +16,19 @@ module AUStateSelect
         :selected => selected_option,
         :disabled => @options[:disabled]
       }
-      option_tags = options_for_select(state_options, option_tags_options)
+      if priority_states.present?
+        priority_state_options = country_options_for(priority_states, false)
+
+        option_tags = options_for_select(priority_state_options, option_tags_options)
+        option_tags += html_safe_newline + options_for_select([priority_countries_divider], disabled: priority_countries_divider)
+
+        option_tags_options[:selected] = [option_tags_options[:selected]] unless option_tags_options[:selected].kind_of?(Array)
+        option_tags_options[:selected].delete_if{|selected| priority_state_options.map(&:second).include?(selected)}
+
+        option_tags += html_safe_newline + options_for_select(state_options, option_tags_options)
+      else
+        option_tags = options_for_select(state_options, option_tags_options)
+      end
     end
 
     private
